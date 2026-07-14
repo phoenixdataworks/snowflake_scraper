@@ -20,6 +20,8 @@ class SnowflakeConfig:
     private_key_path: str | None = None
     private_key_passphrase: str | None = None
     password: str | None = None
+    token: str | None = None
+    legacy_pat: str | None = None
     warehouse: str | None = None
     role: str | None = None
     database: str | None = None
@@ -32,6 +34,8 @@ class SnowflakeConfig:
             private_key_path=os.environ.get("SNOWFLAKE_PRIVATE_KEY_PATH"),
             private_key_passphrase=os.environ.get("SNOWFLAKE_PRIVATE_KEY_PASSPHRASE"),
             password=os.environ.get("SNOWFLAKE_PASSWORD"),
+            token=os.environ.get("SNOWFLAKE_PAT"),
+            legacy_pat=os.environ.get("SNOWFLAKE_LEGACY_PAT"),
             warehouse=os.environ.get("SNOWFLAKE_WAREHOUSE"),
             role=os.environ.get("SNOWFLAKE_ROLE"),
             database=os.environ.get("SNOWFLAKE_DATABASE"),
@@ -42,14 +46,16 @@ class SnowflakeConfig:
             raise ValueError("SNOWFLAKE_ACCOUNT is required")
         if not self.user:
             raise ValueError("SNOWFLAKE_USER is required")
-        if not self.private_key_path and not self.password:
+        if not any(
+            (self.private_key_path, self.token, self.legacy_pat, self.password)
+        ):
             raise ValueError(
-                "Either SNOWFLAKE_PRIVATE_KEY_PATH (recommended) or "
-                "SNOWFLAKE_PASSWORD (local testing only) is required"
+                "One of SNOWFLAKE_PRIVATE_KEY_PATH (recommended), SNOWFLAKE_PAT, "
+                "SNOWFLAKE_LEGACY_PAT, or SNOWFLAKE_PASSWORD (local testing only) is required"
             )
-        if self.password and not self.private_key_path:
+        if self.password and not any((self.private_key_path, self.token, self.legacy_pat)):
             warnings.warn(
-                "Password authentication is enabled. Use key-pair auth in production.",
+                "Password authentication is enabled. Use key-pair auth or a PAT in production.",
                 stacklevel=2,
             )
 
@@ -87,6 +93,11 @@ def connect(config: SnowflakeConfig) -> snowflake.connector.SnowflakeConnection:
             config.private_key_path,
             config.private_key_passphrase,
         )
+    elif config.token:
+        connect_kwargs["authenticator"] = "PROGRAMMATIC_ACCESS_TOKEN"
+        connect_kwargs["token"] = config.token
+    elif config.legacy_pat:
+        connect_kwargs["password"] = config.legacy_pat
     else:
         connect_kwargs["password"] = config.password
 
