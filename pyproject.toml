@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "snowflake-rbac-auditor"
+version = "0.1.0"
+description = "Audit Snowflake RBAC, generate Markdown reports and JSON for least-privilege analysis"
+readme = "readme.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "Phoenix Dataworks" }]
+keywords = ["snowflake", "rbac", "security", "audit", "least-privilege"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: System :: Systems Administration",
+]
+dependencies = [
+    "snowflake-connector-python>=3.6.0",
+    "rich>=13.7.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+snowflake-rbac-audit = "snowflake_rbac_auditor.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["snowflake_rbac_auditor*"]
+
+[tool.setuptools.package-data]
+"snowflake_rbac_auditor" = ["py.typed"]

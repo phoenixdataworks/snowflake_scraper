@@ -1,0 +1,2 @@
+snowflake-connector-python>=3.6.0
+rich>=13.7.0

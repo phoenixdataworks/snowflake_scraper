@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.env
+
+# Audit outputs (sensitive)
+reports/
+*.audit.json
+audit-*.json
+report-*.md
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
+
+# Keys and local config
+*.p8
+*.pem
+config.local.toml
+snowflake_auditor.toml

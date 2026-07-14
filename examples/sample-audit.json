@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "run_timestamp": "2026-07-14T12:00:00+00:00",
+    "account": "xy12345.us-east-1",
+    "extractor_version": "0.1.0",
+    "snowflake_edition": "ENTERPRISE",
+    "focus_privileges": ["UPDATE", "DELETE", "INSERT", "TRUNCATE", "MODIFY"],
+    "flag_role_patterns": ["reader", "viewer", "analyst", "bi_"],
+    "flag_schema_patterns": ["prod_", "finance_", "sensitive_"]
+  },
+  "roles": [
+    {"name": "BI_READER", "owner": "SECURITYADMIN", "comment": "Read-only BI access"},
+    {"name": "ETL_LOADER", "owner": "SECURITYADMIN", "comment": "Pipeline loads"},
+    {"name": "FINANCE_ANALYST", "owner": "SECURITYADMIN", "comment": null}
+  ],
+  "users": [
+    {"name": "ANALYST_JANE", "default_role": "BI_READER", "assigned_roles": ["BI_READER"]},
+    {"name": "ANALYST_BOB", "default_role": "FINANCE_ANALYST", "assigned_roles": ["FINANCE_ANALYST", "BI_READER"]},
+    {"name": "SVC_ETL", "default_role": "ETL_LOADER", "assigned_roles": ["ETL_LOADER"]}
+  ],
+  "grants_to_roles": [
+    {
+      "grantee_name": "BI_READER",
+      "grantee_type": "ROLE",
+      "privilege": "SELECT",
+      "granted_on": "TABLE",
+      "name": "FACT_ORDERS",
+      "table_catalog": "PROD_ANALYTICS",
+      "table_schema": "PUBLIC",
+      "granted_by": "SECURITYADMIN",
+      "grant_option": false
+    },
+    {
+      "grantee_name": "BI_READER",
+      "grantee_type": "ROLE",
+      "privilege": "UPDATE",
+      "granted_on": "TABLE",
+      "name": "FACT_ORDERS",
+      "table_catalog": "PROD_ANALYTICS",
+      "table_schema": "PUBLIC",
+      "granted_by": "SECURITYADMIN",
+      "grant_option": false
+    },
+    {
+      "grantee_name": "BI_READER",
+      "grantee_type": "ROLE",
+      "privilege": "DELETE",
+      "granted_on": "TABLE",
+      "name": "FACT_ORDERS",
+      "table_catalog": "PROD_ANALYTICS",
+      "table_schema": "PUBLIC",
+      "granted_by": "SECURITYADMIN",
+      "grant_option": false
+    },
+    {
+      "grantee_name": "FINANCE_ANALYST",
+      "grantee_type": "ROLE",
+      "privilege": "INSERT",
+      "granted_on": "TABLE",
+      "name": "LEDGER_ENTRIES",
+      "table_catalog": "FINANCE_CORE",
+      "table_schema": "SENSITIVE",
+      "granted_by": "SECURITYADMIN",
+      "grant_option": false
+    },
+    {
+      "grantee_name": "ETL_LOADER",
+      "grantee_type": "ROLE",
+      "privilege": "INSERT",
+      "granted_on": "TABLE",
+      "name": "FACT_ORDERS",
+      "table_catalog": "DEV_ANALYTICS",
+      "table_schema": "PUBLIC",
+      "granted_by": "SECURITYADMIN",
+      "grant_option": false
+    }
+  ],
+  "grants_to_users": [],
+  "role_hierarchy": [
+    {"parent_role": "SYSADMIN", "child_role": "BI_READER"},
+    {"parent_role": "SYSADMIN", "child_role": "ETL_LOADER"}
+  ],
+  "flagged_issues": [
+    {
+      "severity": "high",
+      "reason": "role name matches read-oriented pattern (BI_READER); object/schema matches sensitive pattern (PROD_ANALYTICS.PUBLIC.FACT_ORDERS)",
+      "grantee_name": "BI_READER",
+      "grantee_type": "ROLE",
+      "privilege": "UPDATE",
+      "granted_on": "TABLE",
+      "object_name": "PROD_ANALYTICS.PUBLIC.FACT_ORDERS",
+      "affected_users_count": 2,
+      "affected_users_note": "Direct role assignment; also inherited by parent roles: SYSADMIN",
+      "recommendation": "Review whether BI_READER needs UPDATE on PROD_ANALYTICS.PUBLIC.FACT_ORDERS. If read-only access is sufficient, revoke UPDATE and grant SELECT only."
+    },
+    {
+      "severity": "high",
+      "reason": "role name matches read-oriented pattern (BI_READER); object/schema matches sensitive pattern (PROD_ANALYTICS.PUBLIC.FACT_ORDERS)",
+      "grantee_name": "BI_READER",
+      "grantee_type": "ROLE",
+      "privilege": "DELETE",
+      "granted_on": "TABLE",
+      "object_name": "PROD_ANALYTICS.PUBLIC.FACT_ORDERS",
+      "affected_users_count": 2,
+      "affected_users_note": "Direct role assignment; also inherited by parent roles: SYSADMIN",
+      "recommendation": "Review whether BI_READER needs DELETE on PROD_ANALYTICS.PUBLIC.FACT_ORDERS. If read-only access is sufficient, revoke DELETE and grant SELECT only."
+    },
+    {
+      "severity": "high",
+      "reason": "role name matches read-oriented pattern (FINANCE_ANALYST); object/schema matches sensitive pattern (FINANCE_CORE.SENSITIVE.LEDGER_ENTRIES)",
+      "grantee_name": "FINANCE_ANALYST",
+      "grantee_type": "ROLE",
+      "privilege": "INSERT",
+      "granted_on": "TABLE",
+      "object_name": "FINANCE_CORE.SENSITIVE.LEDGER_ENTRIES",
+      "affected_users_count": 1,
+      "affected_users_note": "Direct role assignment",
+      "recommendation": "Review whether FINANCE_ANALYST needs INSERT on FINANCE_CORE.SENSITIVE.LEDGER_ENTRIES. If read-only access is sufficient, revoke INSERT and grant SELECT only."
+    }
+  ],
+  "stats": {
+    "role_count": 3,
+    "user_count": 3,
+    "grants_to_roles_count": 5,
+    "grants_to_users_count": 0,
+    "hierarchy_edge_count": 2,
+    "flagged_issue_count": 3,
+    "dml_grants_on_tables_count": 4
+  }
+}
